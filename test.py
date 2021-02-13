@@ -10,5 +10,3 @@ data = pd.read_csv(pathArticles, nrows=100, usecols=cols)
 raw_text = data['article'].iloc[90]
 print(raw_text)
 
-
-# add a coment
