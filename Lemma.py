@@ -35,6 +35,8 @@ def Evaluate_lemmatizer(inputs, labels, lib='hazm'):
             sent_labels_no_pos = []
 
             for (word, pos) in sentence:
+                if pos == 'ADJ':
+                    pos = 'AJ'
                 sent_labels_with_pos.append(lemmatizer.lemmatize(word, pos))
                 sent_labels_no_pos.append(lemmatizer.lemmatize(word))
 
@@ -92,11 +94,13 @@ def Evaluate_lemmatizer(inputs, labels, lib='hazm'):
             if inputs[i][j][1] not in detailed_analyze.keys():
                 detailed_analyze[inputs[i][j][1]] = {'true': [], 'false': []}
 
+            # detailed_analyze[inputs[i][j][1]]['gold'].append(labels[i][j])
             if all_truly_labeled_with_pos[i][j]:
                 detailed_analyze[inputs[i][j][1]]['true'].append(inputs[i][j][0])
-
+                # detailed_analyze[inputs[i][j][1]]['false'].append('NONE')
             else:
                 detailed_analyze[inputs[i][j][1]]['false'].append(inputs[i][j][0])
+                # detailed_analyze[inputs[i][j][1]]['true'].append('NONE')
 
 
     accuracy_per_pos = {k: v['true']/(v['true'] + v['false']) for k, v in per_pos.items()}
@@ -130,13 +134,12 @@ print(f'hazm_precision_no_pos = {hazm_precision_no_pos}')
 print(f'parsivar_precision_no_pos = {parsivar_precision_no_pos}')
 
 """
-
 with open(os.path.join(Directory_Path, 'hazm_detailed_analyze.json'), 'w') as HAZM:
     json.dump(hazm_detailed_analyze, HAZM)
 
 with open(os.path.join(Directory_Path, 'parsivar_detailed_analyze.json'), 'w') as PARSIVAR:
     json.dump(parsivar_detailed_analyze, PARSIVAR)
-
+"""
 
 plt.xticks(rotation='vertical')
 plt.bar(*zip(*hazm_accuracy_per_POS.items()))
@@ -158,4 +161,3 @@ for i, v in enumerate(parsivar_accuracy_per_POS.values()):
     plt.text(i, v, str(round(v,2)), ha='center', va='bottom', fontsize='small')
 
 plt.savefig(os.path.join(Directory_Path, 'parsivar_accuracy_per_POS.png'), dpi=300, bbox_inches='tight')
-"""
