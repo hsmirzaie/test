@@ -3,6 +3,7 @@ from hazm import Lemmatizer
 from parsivar import FindStems
 import re
 import matplotlib.pyplot as plt
+import json
 
 
 def extract_data(paths):
@@ -76,6 +77,7 @@ def Evaluate_lemmatizer(inputs, labels, lib='hazm'):
         precisions_no_pos.append(precision_no_pos)
 
     per_pos = {}
+    detailed_analyze = {}
     for i in range(len(inputs)):
         for j in range(len(inputs[i])):
 
@@ -87,11 +89,23 @@ def Evaluate_lemmatizer(inputs, labels, lib='hazm'):
             else:
                 per_pos[inputs[i][j][1]]['false'] += 1
 
-    accuracy_per_pos = {k: v['true'] / (v['true'] + v['false']) for k, v in per_pos.items()}
+            if inputs[i][j][1] not in detailed_analyze.keys():
+                detailed_analyze[inputs[i][j][1]] = {'true': [], 'false': []}
 
+            if all_truly_labeled_with_pos[i][j]:
+                detailed_analyze[inputs[i][j][1]]['true'].append(inputs[i][j][0])
+
+            else:
+                detailed_analyze[inputs[i][j][1]]['false'].append(inputs[i][j][0])
+
+
+    accuracy_per_pos = {k: v['true']/(v['true'] + v['false']) for k, v in per_pos.items()}
+    for k, v in detailed_analyze.items():
+        v['true'] = set(v['true'])
+        v['false'] = set(v['false'])
     precision_with_pos = sum(precisions_with_pos) / len(precisions_with_pos)
     precision_no_pos = sum(precisions_no_pos) / len(precisions_no_pos)
-    return precision_with_pos, precision_no_pos, accuracy_per_pos
+    return precision_with_pos, precision_no_pos, accuracy_per_pos, detailed_analyze
 
 
 Directory_Path = 'E:\\Arman\\Persian NLP toolkit\\Lemma_PerDT'
@@ -105,17 +119,25 @@ paths = [os.path.join(Directory_Path, train_Filename),
 
 inputs, labels = extract_data(paths)
 
-(hazm_precision_with_pos, hazm_precision_no_pos, hazm_accuracy_per_POS) = \
+(hazm_precision_with_pos, hazm_precision_no_pos, hazm_accuracy_per_POS, hazm_detailed_analyze) = \
     Evaluate_lemmatizer(inputs, labels, lib='hazm')
-# (parsivar_precision_with_pos, parsivar_precision_no_pos, parsivar_accuracy_per_POS) = \
-#     Evaluate_lemmatizer(inputs, labels, lib='parsivar')
+(parsivar_precision_with_pos, parsivar_precision_no_pos, parsivar_accuracy_per_POS, parsivar_detailed_analyze) = \
+    Evaluate_lemmatizer(inputs, labels, lib='parsivar')
 
 print(f'hazm_precision_with_pos = {hazm_precision_with_pos}')
-# print(f'parsivar_precision_with_pos = {parsivar_precision_with_pos}')
+print(f'parsivar_precision_with_pos = {parsivar_precision_with_pos}')
 print(f'hazm_precision_no_pos = {hazm_precision_no_pos}')
-# print(f'parsivar_precision_no_pos = {parsivar_precision_no_pos}')
+print(f'parsivar_precision_no_pos = {parsivar_precision_no_pos}')
 
 """
+
+with open(os.path.join(Directory_Path, 'hazm_detailed_analyze.json'), 'w') as HAZM:
+    json.dump(hazm_detailed_analyze, HAZM)
+
+with open(os.path.join(Directory_Path, 'parsivar_detailed_analyze.json'), 'w') as PARSIVAR:
+    json.dump(parsivar_detailed_analyze, PARSIVAR)
+
+
 plt.xticks(rotation='vertical')
 plt.bar(*zip(*hazm_accuracy_per_POS.items()))
 plt.title('hazm_accuracy_per_POS')
