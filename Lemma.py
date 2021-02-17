@@ -26,31 +26,31 @@ def extract_data(paths):
 def Evaluate_lemmatizer(inputs, labels, lib='hazm'):
     predicted_labels_with_pos = []
     predicted_labels_no_pos = []
-    POS = []
+
     if lib == 'hazm':
         lemmatizer = Lemmatizer()
         for sentence in inputs:
             sent_labels_with_pos = []
             sent_labels_no_pos = []
-            sent_pos = []
+
             for (word, pos) in sentence:
                 sent_labels_with_pos.append(lemmatizer.lemmatize(word, pos))
                 sent_labels_no_pos.append(lemmatizer.lemmatize(word))
-                sent_pos.append(pos)
+
             predicted_labels_with_pos.append(sent_labels_with_pos)
             predicted_labels_no_pos.append(sent_labels_no_pos)
-            POS.append(sent_pos)
 
-    elif lib == 'parsivar':
+
+    elif lib=='parsivar':
         stemmer = FindStems()
         for sentence in inputs:
             sent_labels_with_pos = []
             sent_labels_no_pos = []
-            sent_pos = []
+
             for (word, pos) in sentence:
                 sent_labels_with_pos.append(stemmer.convert_to_stem(word, pos))
                 sent_labels_no_pos.append(stemmer.convert_to_stem(word))
-                sent_pos.append(pos)
+
             for i in range(len(sentence)):
                 if sentence[i][1] == 'V':
                     sent_labels_with_pos[i] = re.sub(r"&", r"#", sent_labels_with_pos[i])
@@ -58,7 +58,6 @@ def Evaluate_lemmatizer(inputs, labels, lib='hazm'):
 
             predicted_labels_with_pos.append(sent_labels_with_pos)
             predicted_labels_no_pos.append(sent_labels_no_pos)
-            POS.append(sent_pos)
 
     precisions_with_pos = []
     precisions_no_pos = []
@@ -67,31 +66,32 @@ def Evaluate_lemmatizer(inputs, labels, lib='hazm'):
     for i in range(len(labels)):
         truly_labeled_with_pos = [predicted_labels_with_pos[i][j] == labels[i][j] for j in range(len(labels[i]))]
         all_truly_labeled_with_pos.append(truly_labeled_with_pos)
-        Num_truly_labeled_with_pos = sum(truly_labeled_with_pos)
+        num_truly_labeled_with_pos = sum(truly_labeled_with_pos)
         truly_labeled_no_pos = [predicted_labels_no_pos[i][j] == labels[i][j] for j in range(len(labels[i]))]
-        Num_truly_labeled_no_pos = sum(truly_labeled_no_pos)
+        num_truly_labeled_no_pos = sum(truly_labeled_no_pos)
 
-        precision_with_pos = Num_truly_labeled_with_pos / len(labels[i])
-        precision_no_pos = Num_truly_labeled_no_pos / len(labels[i])
+        precision_with_pos = num_truly_labeled_with_pos / len(labels[i])
+        precision_no_pos = num_truly_labeled_no_pos / len(labels[i])
         precisions_with_pos.append(precision_with_pos)
         precisions_no_pos.append(precision_no_pos)
 
-    per_POS = {}
-    for i in range(len(POS)):
-        for j in range(len(POS[i])):
+    per_pos = {}
+    for i in range(len(inputs)):
+        for j in range(len(inputs[i])):
 
-            if POS[i][j] not in per_POS.keys():
-                per_POS[POS[i][j]] = {'true': 0, 'false': 0}
+            if inputs[i][j][1] not in per_pos.keys():
+                per_pos[inputs[i][j][1]] = {'true': 0, 'false': 0}
 
             if all_truly_labeled_with_pos[i][j]:
-                per_POS[POS[i][j]]['true'] += 1
+                per_pos[inputs[i][j][1]]['true'] += 1
             else:
-                per_POS[POS[i][j]]['false'] += 1
+                per_pos[inputs[i][j][1]]['false'] += 1
 
-    accuracy_per_POS = {k: v['true'] / (v['true'] + v['false']) for k, v in per_POS.items()}
+    accuracy_per_pos = {k: v['true'] / (v['true'] + v['false']) for k, v in per_pos.items()}
+
     precision_with_pos = sum(precisions_with_pos) / len(precisions_with_pos)
     precision_no_pos = sum(precisions_no_pos) / len(precisions_no_pos)
-    return precision_with_pos, precision_no_pos, accuracy_per_POS
+    return precision_with_pos, precision_no_pos, accuracy_per_pos
 
 
 Directory_Path = 'E:\\Arman\\Persian NLP toolkit\\Lemma_PerDT'
@@ -107,14 +107,15 @@ inputs, labels = extract_data(paths)
 
 (hazm_precision_with_pos, hazm_precision_no_pos, hazm_accuracy_per_POS) = \
     Evaluate_lemmatizer(inputs, labels, lib='hazm')
-(parsivar_precision_with_pos, parsivar_precision_no_pos, parsivar_accuracy_per_POS) = \
-    Evaluate_lemmatizer(inputs, labels, lib='parsivar')
+# (parsivar_precision_with_pos, parsivar_precision_no_pos, parsivar_accuracy_per_POS) = \
+#     Evaluate_lemmatizer(inputs, labels, lib='parsivar')
 
 print(f'hazm_precision_with_pos = {hazm_precision_with_pos}')
-print(f'parsivar_precision_with_pos = {parsivar_precision_with_pos}')
+# print(f'parsivar_precision_with_pos = {parsivar_precision_with_pos}')
 print(f'hazm_precision_no_pos = {hazm_precision_no_pos}')
-print(f'parsivar_precision_no_pos = {parsivar_precision_no_pos}')
+# print(f'parsivar_precision_no_pos = {parsivar_precision_no_pos}')
 
+"""
 plt.xticks(rotation='vertical')
 plt.bar(*zip(*hazm_accuracy_per_POS.items()))
 plt.title('hazm_accuracy_per_POS')
@@ -135,3 +136,4 @@ for i, v in enumerate(parsivar_accuracy_per_POS.values()):
     plt.text(i, v, str(round(v,2)), ha='center', va='bottom', fontsize='small')
 
 plt.savefig(os.path.join(Directory_Path, 'parsivar_accuracy_per_POS.png'), dpi=300, bbox_inches='tight')
+"""
