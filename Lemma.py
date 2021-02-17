@@ -79,13 +79,14 @@ def Evaluate_lemmatizer(inputs, labels, lib='hazm'):
     per_POS = {}
     for i in range(len(POS)):
         for j in range(len(POS[i])):
+
             if POS[i][j] not in per_POS.keys():
                 per_POS[POS[i][j]] = {'true': 0, 'false': 0}
+
+            if all_truly_labeled_with_pos[i][j]:
+                per_POS[POS[i][j]]['true'] += 1
             else:
-                if all_truly_labeled_with_pos[i][j]:
-                    per_POS[POS[i][j]]['true'] += 1
-                else:
-                    per_POS[POS[i][j]]['false'] += 1
+                per_POS[POS[i][j]]['false'] += 1
 
     accuracy_per_POS = {k: v['true'] / (v['true'] + v['false']) for k, v in per_POS.items()}
     precision_with_pos = sum(precisions_with_pos) / len(precisions_with_pos)
@@ -119,6 +120,9 @@ plt.bar(*zip(*hazm_accuracy_per_POS.items()))
 plt.title('hazm_accuracy_per_POS')
 plt.xlabel('POS')
 plt.ylabel('accuracy')
+for i, v in enumerate(hazm_accuracy_per_POS.values()):
+    plt.text(i, v, str(round(v,2)), ha='center', va='bottom', fontsize='small')
+
 plt.savefig(os.path.join(Directory_Path, 'hazm_accuracy_per_POS.png'), dpi=300, bbox_inches='tight')
 
 plt.figure()
@@ -127,4 +131,7 @@ plt.bar(*zip(*parsivar_accuracy_per_POS.items()))
 plt.title('parsivar_accuracy_per_POS')
 plt.xlabel('POS')
 plt.ylabel('accuracy')
+for i, v in enumerate(parsivar_accuracy_per_POS.values()):
+    plt.text(i, v, str(round(v,2)), ha='center', va='bottom', fontsize='small')
+
 plt.savefig(os.path.join(Directory_Path, 'parsivar_accuracy_per_POS.png'), dpi=300, bbox_inches='tight')
