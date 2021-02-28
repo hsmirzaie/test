@@ -2,11 +2,15 @@ import os
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn import svm
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 
 Directory_Path = 'E:\\Arman\\Text Classification'
 
-def writer(data, filename, type = 'string'):
+def writer(data, filename, type='string'):
+
     parent_dir = os.path.join(Directory_Path, 'temporary')
     if type == 'string':
         with open(os.path.join(parent_dir, filename), "w", encoding='utf-8') as f:
@@ -22,15 +26,16 @@ def writer(data, filename, type = 'string'):
 corpus = []
 labels = []
 
-with open(os.path.join(Directory_Path,'offensive.txt'), "r", encoding="utf-8") as f:
+with open(os.path.join(Directory_Path,'offensive_1.txt'), "r", encoding="utf-8") as f:
     for line in f.readlines():
         if line != '\n':
             corpus.append(line)
             labels.append(1)
 
+
 with open(os.path.join(Directory_Path,'nonoffensive.txt'), "r", encoding="utf-8") as f:
     for line in f.readlines():
-        if line != '\n':
+        if line != "\n":
             corpus.append(line)
             labels.append(0)
 
@@ -42,6 +47,7 @@ x_train_tfidf = vectorizer.fit_transform(x_train)
 x_test_tfidf = vectorizer.transform(x_test)
 
 clf = svm.LinearSVC()
+# clf = LogisticRegression()
 clf.fit(x_train_tfidf, y_train)
 
 y_test_predicted = clf.predict(x_test_tfidf)

@@ -1,16 +1,88 @@
-# This is a sample Python script.
+import os
+from hazm import *
+lemmatizer = Lemmatizer()
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+list = [
+'سکس',
+'سکسی',
+'سکصی',
+'سسکی',
+'دیوس',
+'دیوث',
+'دیوص',
+'کون',
+'کونیا',
+'کونیاش',
+'کیون',
+'کیر',
+'کیرمو',
+'کیرتو',
+'کیرشو',
+'کس',
+'کص',
+'کسکش',
+'کصکش',
+'کوس',
+'جنس',
+'اشغال',
+'کثافت',
+'واژن',
+'جنده',
+'مادرجنده',
+'خارجنده',
+'خارکسده',
+'خارکصده',
+'خارکوسده',
+'خل',
+'تحریک',
+'خر',
+'الت',
+'جون',
+'پاره',
+'تناسلی',
+'سگ',
+'ارضا',
+'ارگاسم',
+'خراب',
+'جق',
+'ساک',
+'لخت',
+'ممه',
+'خفه',
+'تخم',
+'احمق',
+'کودن',
+'دخول',
+'کاندوم',
+'چل',
+'حشر',
+'شهوت',
+'تلمبه',
+'انزال',
+'لیس',
+'ننه',
+'ابم',
+'بیشعور',
+'مقاربت',
+'آمیزش',
+'مقعد',
+'کلیتوریس',
+'اسپرم'
+]
+Directory_Path = 'E:\\Arman\\Text Classification'
+# with open(os.path.join(Directory_Path,'offensive_lexicon.txt'), "w", encoding="utf_8") as f:
+    # f.write("\n".join(item for item in list))
 
+with open(os.path.join(Directory_Path,'offensive_lexicon.txt'), "w", encoding="utf_8") as f:
+    for item in list:
+        f.write("%s\n" % item)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+list = []
+with open(os.path.join(Directory_Path,'offensive_lexicon.txt'), "r", encoding="utf_8") as f:
+    for line in f.readlines():
+        list.append(line[:-1])
 
+lemmas = [lemmatizer.lemmatize(i) for i in list]
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at httmainps://www.jetbrains.com/help/pycharm/
+a = [list[i] for i in range(len(list)) if lemmas[i]!=list[i]]
+print(len(list))

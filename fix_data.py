@@ -35,8 +35,12 @@ y_test_predicted = reader(os.path.join(Directory_Path,'y_test_predicted.txt'), t
 
 
 Mislabeled = [(i, x_test[i], y_test[i]) for i in range(len(y_test)) if y_test[i] != y_test_predicted[i]]
+print(f'len(Mislabeled)= {len(Mislabeled)}')
 
-# false positive
+positive = [(i, j) for (i, j, k) in Mislabeled if k==1]
+negative = [(i, j) for (i, j, k) in Mislabeled if k==0]
+
+#false positive
 untruly_offensive = []
 
 # false negative
@@ -56,13 +60,24 @@ x_test =  [j for i, j in enumerate(x_test) if not i in to_remove]
 
 Mislabeled = [(i, x_test[i], y_test[i]) for i in range(len(y_test)) if y_test[i] != y_test_predicted[i]]
 
+print(f'len(Mislabeled)= {len(Mislabeled)}')
+
 offensive = [j for i, j in enumerate(x_train) if y_train[i]==1]
 nonoffensive = [j for i, j in enumerate(x_train) if y_train[i]==0]
 
 offensive.extend([j for i, j in enumerate(x_test) if y_test[i]==1])
 nonoffensive.extend([j for i, j in enumerate(x_test) if y_test[i]==0])
 
-with open(os.path.join(Directory_Path,'offensive.txt'), "w", encoding="utf_8") as f:
+
+offensive = list(set(offensive))
+nonoffensive = list(set(nonoffensive))
+
+print(f'len(offensive)= {len(offensive)}')
+print(f'len(nonoffensive)= {len(nonoffensive)}')
+
+intersection = [item for item in offensive if item in nonoffensive]
+
+with open(os.path.join(Directory_Path,'offensive_1.txt'), "w", encoding="utf_8") as f:
     for item in offensive:
         f.write("%s" % item)
 
